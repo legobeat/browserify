@@ -27,8 +27,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - name: Pin npm version # for lockfile consistency; can be removed if/when nodejs v6/v8 support is removed and lockfile version has been upgraded
-        run: npm i -g npm@6
+      - name: Pin npm version 6.14.17 # 6.14.18 breaks npm 6
+        if: ${{ matrix.node-version == '6.x' }}
+        run: npm i -g npm@6.14.17
+      - name: Pin npm version 6.x # for lockfile consistency; can be removed if/when nodejs v6/v8 support is removed and lockfile version has been upgraded
+        if: ${{ matrix.node-version != '6.x' }}
+        run: npm i -g npm@6.14.17
       - name: Install Dependencies
         uses: bahmutov/npm-install@1a235c31658a322a3b024444759650ee6345c26d # tag=v1
         with:
