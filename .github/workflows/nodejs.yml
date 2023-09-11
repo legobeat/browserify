@@ -1,0 +1,39 @@
+name: CI
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 4.x
+          - 6.x
+          - 8.x
+          - 10.x
+          - 14.x
+          - 16.x
+          - 18.x
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Pin npm version # for lockfile consistency; can be removed if/when nodejs v6/v8 support is removed and lockfile version has been upgraded
+        run: npm i -g npm@6
+      - name: Install Dependencies
+        uses: bahmutov/npm-install@1a235c31658a322a3b024444759650ee6345c26d # tag=v1
+        with:
+          useRollingCache: true
+          install-command: npm ci --foreground-scripts
+      - name: Test
+        run: npm test
